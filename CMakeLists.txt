@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION 3.13)
+
+# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+        cmake_policy(SET CMP0135 NEW)
+endif()
+
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
+
+set(PROJECT_NAME freedv-backend)
+set(PROJECT_VERSION 1.0.0)
+set(PROJECT_DESCRIPTION "Common backend code shared by FreeDV projects")
+set(PROJECT_HOMEPAGE_URL "https://freedv.org")
+
+# Makes FreeDV overridden CMake platform available for ARM MinGW builds.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+
+if(APPLE)
+    project(
+        ${PROJECT_NAME}
+        VERSION ${PROJECT_VERSION}
+        DESCRIPTION ${PROJECT_DESCRIPTION}
+        HOMEPAGE_URL ${PROJECT_HOMEPAGE_URL}
+        LANGUAGES C CXX OBJCXX
+    )
+else()
+    project(
+        ${PROJECT_NAME}
+        VERSION ${PROJECT_VERSION}
+        DESCRIPTION ${PROJECT_DESCRIPTION}
+        HOMEPAGE_URL ${PROJECT_HOMEPAGE_URL}
+        LANGUAGES C CXX
+    )
+endif(APPLE)
+
+# Build universal ARM64 and x86_64 binaries on Mac.
+if(BUILD_OSX_UNIVERSAL)
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
+endif(BUILD_OSX_UNIVERSAL)
+
+# Mandate a minimum of C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Compile backend dependencies
+include(cmake/BuildRADE.cmake)
+include(cmake/BuildRNNoise.cmake)
+
+# Look for libebur128 (loudness measurement) 
+if(NOT USE_STATIC_EBUR128)
+    message(STATUS "Looking for ebur128...")
+    find_library(LIBEBUR128 ebur128)
+    find_path(LIBEBUR128_INCLUDE_DIR ebur128.h)
+    message(STATUS "  ebur128 library: ${LIBEBUR128}")
+    message(STATUS "  ebur128 headers: ${LIBEBUR128_INCLUDE_DIR}")
+    if(LIBEBUR128 AND LIBEBUR128_INCLUDE_DIR)
+        list(APPEND FREEDV_LINK_LIBS ${LIBEBUR128})
+        include_directories(${LIBEBUR128_INCLUDE_DIR})
+    else(LIBEBUR128 AND LIBEBUR128_INCLUDE_DIR)
+        message(STATUS "Will attempt static build of ebur128.")
+        include(cmake/BuildEbur128.cmake)
+    endif(LIBEBUR128 AND LIBEBUR128_INCLUDE_DIR)
+else(NOT USE_STATIC_LIBEBUR128)
+    message(STATUS "Will attempt static build of ebur128.")
+    include(cmake/BuildEbur128.cmake)
+endif(NOT USE_STATIC_EBUR128)
+
+add_subdirectory(src)

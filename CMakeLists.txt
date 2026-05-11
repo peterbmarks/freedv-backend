@@ -67,4 +67,11 @@ else(NOT USE_STATIC_LIBEBUR128)
     include(cmake/BuildEbur128.cmake)
 endif(NOT USE_STATIC_EBUR128)
 
+# Enable CTest tests for freedv-gui
+option(UNITTEST "Build unit test binaries." OFF)
+if(UNITTEST)
+message(STATUS "Enabling unit tests.")
+enable_testing()
+endif(UNITTEST)
+
 add_subdirectory(src)

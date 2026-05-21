@@ -6,6 +6,8 @@ add_library(fdv_audio_pipeline STATIC
     IPipelineStep.cpp
     LevelAdjustStep.cpp
     LinkStep.cpp
+    MinimalRealTimeHelper.cpp
+    MinimalTxRxThread.cpp
     MuteStep.cpp
     RADEReceiveStep.cpp
     RADETransmitStep.cpp

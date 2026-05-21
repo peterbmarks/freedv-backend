@@ -2,26 +2,17 @@ add_library(fdv_audio_pipeline STATIC
     AgcStep.cpp
     AudioPipeline.cpp
     BandwidthExpandStep.cpp
-    #ComputeRfSpectrumStep.cpp
     EitherOrStep.cpp
-    #EqualizerStep.cpp
-    #FreeDVReceiveStep.cpp
-    #FreeDVTransmitStep.cpp
     IPipelineStep.cpp
     LevelAdjustStep.cpp
     LinkStep.cpp
     MuteStep.cpp
-    #ParallelStep.cpp
-    #PlaybackStep.cpp
     RADEReceiveStep.cpp
     RADETransmitStep.cpp
-    #RecordStep.cpp
     ResampleStep.cpp
-    #ResamplePlotStep.cpp
     RNNoiseStep.cpp
     TapStep.cpp
     ToneInterfererStep.cpp
-    #TxRxThread.cpp
     rade_text.cpp
     ldpc_encode.cpp
     ldpc_decode.cpp

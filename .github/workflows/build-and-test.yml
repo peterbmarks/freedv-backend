@@ -1,0 +1,39 @@
+name: Build and Test
+on:
+  push
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install required packages (macOS)
+      if: ${{ matrix.os == 'macos-15' }}
+      run: |
+        brew install automake libtool
+     
+    - name: Configure build
+      run: |
+        mkdir build
+        cd build
+        cmake -DUNITTEST=1 ..
+
+    - name: Build backend and tests
+      run: |
+        cd build
+        cmake --build .
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest -V

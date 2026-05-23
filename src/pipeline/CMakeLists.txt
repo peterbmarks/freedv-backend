@@ -20,17 +20,12 @@ add_library(fdv_audio_pipeline STATIC
     ldpc_decode.cpp
 )
 
+add_dependencies(fdv_audio_pipeline rade opus)
 target_compile_options(fdv_audio_pipeline PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})
 target_link_libraries(fdv_audio_pipeline PRIVATE ebur128 agc rnnoise fdv_os_wrapper r8brain)
 target_link_libraries(fdv_audio_pipeline INTERFACE rade opus)
 target_include_directories(fdv_audio_pipeline PRIVATE ${CODEC2_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
 target_include_directories(fdv_audio_pipeline PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-if(BOOTSTRAP_WXWIDGETS)
-    add_dependencies(fdv_audio_pipeline wx::core wx::base wx::aui wx::html wx::net wx::adv wx::propgrid wx::xrc)
-    target_compile_definitions(fdv_audio_pipeline PRIVATE ${WXBUILD_BUILD_DEFS})
-    target_include_directories(fdv_audio_pipeline PRIVATE ${WXBUILD_INCLUDES})
-endif(BOOTSTRAP_WXWIDGETS)
 
 if(UNITTEST)
 macro(DefineUnitTest utName)
@@ -56,14 +51,8 @@ DefineUnitTest(TapTest)
 DefineUnitTest(ldpc_decode)
 DefineUnitTest(ldpc_encode)
 
-# TBD - won't execute on macOS just yet.
 DefineUnitTest(RadeTextTest)
 target_link_libraries(RadeTextTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain) 
-if(BOOTSTRAP_WXWIDGETS)
-    target_link_libraries(RadeTextTest PRIVATE wx::core wx::base wx::aui wx::html wx::net wx::adv wx::propgrid wx::xrc)
-    target_compile_definitions(RadeTextTest PRIVATE ${WXBUILD_BUILD_DEFS})
-    target_include_directories(RadeTextTest PRIVATE ${WXBUILD_INCLUDES})
-endif(BOOTSTRAP_WXWIDGETS)
 #endif(LINUX)
 
 endif(UNITTEST)

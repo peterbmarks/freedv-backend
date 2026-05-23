@@ -152,7 +152,7 @@ int main()
             float amplitudes[112];
             for (int k = 0; k < 112; k++) amplitudes[k] = 1.0f;
 
-            auto res = ldpc_decode(syms, amplitudes, sigma2, 100);
+            auto res = ldpc_decode(syms, amplitudes, sigma2);
             conv += res.converged;
             total_iters += res.iterations;
             if (res.message != cw) frame_errors++;

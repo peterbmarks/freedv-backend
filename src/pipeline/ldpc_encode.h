@@ -1,9 +1,9 @@
-//=========================================================================
-// Name:            RecordStep.cpp
-// Purpose:         Describes a record step in the audio pipeline.
+//==========================================================================
+// Name:            ldpc_encode.h
 //
+// Purpose:         Handles encode of LDPC(112, 56) codewords.
+// Created:         May 20, 2026
 // Authors:         Mooneer Salem
-// License:
 //
 // All rights reserved.
 //
@@ -30,40 +30,25 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//=========================================================================
+//==========================================================================
 
-#include "../defines.h"
-#include "ResamplePlotStep.h"
+#ifndef LDPC_ENCODE_H
+#define LDPC_ENCODE_H
 
-// TBD - maybe include code for function here?
-extern void resample_for_plot(GenericFIFO<short> *plotFifo, short buf[], short* dec_samples, int length, int fs) FREEDV_NONBLOCKING;
+#include <array>
+#include <cstdint>
 
-ResampleForPlotStep::ResampleForPlotStep(GenericFIFO<short>* fifo)
-    : fifo_(fifo)
-{
-    decSamples_ = new short[FS];
-    assert(decSamples_ != nullptr);
-}
+// LDPC(112,56) systematic encoder using the HRA_56_56 parity check matrix.
+//
+// H = [H_a | H_b] (56x112), where H_b is lower-bidiagonal, allowing parity
+// bits p to be solved from H_a*s + H_b*p = 0 (mod 2) via forward substitution:
+//   p[0]   = r[0]
+//   p[i]   = r[i] XOR p[i-1]   for i = 1..55
+// where r = H_a * s (mod 2).
+//
+// Input:  56 bits (each element must be 0 or 1)
+// Output: 112-bit codeword [ s | p ]
 
-ResampleForPlotStep::~ResampleForPlotStep()
-{
-    delete[] decSamples_;
-}
+std::array<uint8_t, 112> ldpc_encode(const std::array<uint8_t, 56>& s);
 
-int ResampleForPlotStep::getInputSampleRate() const FREEDV_NONBLOCKING
-{
-    return FS;
-}
-
-int ResampleForPlotStep::getOutputSampleRate() const FREEDV_NONBLOCKING
-{
-    return FS;
-}
-
-short* ResampleForPlotStep::execute(short* inputSamples, int numInputSamples, int* numOutputSamples) FREEDV_NONBLOCKING
-{
-    resample_for_plot(fifo_, inputSamples, decSamples_, numInputSamples, FS);
-    
-    *numOutputSamples = 0;    
-    return nullptr;
-}
+#endif // LDPC_ENCODE_H

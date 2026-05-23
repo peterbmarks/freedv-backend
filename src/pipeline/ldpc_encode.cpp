@@ -1,9 +1,9 @@
-//=========================================================================
-// Name:            ResamplePlotStep.h
-// Purpose:         Describes a resample for plot step in the audio pipeline.
+//==========================================================================
+// Name:            ldpc_encode.cpp
 //
+// Purpose:         Handles encode of LDPC(112, 56) codewords.
+// Created:         May 20, 2026
 // Authors:         Mooneer Salem
-// License:
 //
 // All rights reserved.
 //
@@ -30,29 +30,42 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//=========================================================================
+//==========================================================================
 
-#ifndef AUDIO_PIPELINE__RESAMPLE_PLOT_STEP_H
-#define AUDIO_PIPELINE__RESAMPLE_PLOT_STEP_H
+#include "ldpc_encode.h"
+#include "HRA_56_56.h"
 
-#include "IPipelineStep.h"
-
-#include "util/GenericFIFO.h"
-
-class ResampleForPlotStep : public IPipelineStep
+std::array<uint8_t, 112> ldpc_encode(const std::array<uint8_t, 56>& s)
 {
-public:
-    // Locked to 8Khz. Wrap around AudioPipeline as needed.
-    ResampleForPlotStep(GenericFIFO<short>* fifo);
-    virtual ~ResampleForPlotStep();
-    
-    virtual int getInputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual int getOutputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual short* execute(short* inputSamples, int numInputSamples, int* numOutputSamples) FREEDV_NONBLOCKING override;
-    
-private:
-    GenericFIFO<short>* fifo_;
-    short* decSamples_;
-};
+    std::array<uint8_t, 112> codeword{};
 
-#endif // AUDIO_PIPELINE__RESAMPLE_PLOT_STEP_H
+    // Codeword must satisfy Hc^t = 0. The first half of c is known
+    // to be s, so we can prepopulate now.
+    for (int i = 0; i < 56; i++)
+    {
+        codeword[i] = s[i];
+    }
+
+    // Assumption: right half of H is (mostly) diagonal. For each parity bit,
+    // we use p[index - 1] and p[index] (except for the first parity bit,
+    // which is just p[index]). 
+    for (int i = 0; i < 56; i++)
+    {
+        int parityCtr = 0;
+        for (int j = 0; j < 56; j++)
+        {
+            parityCtr += codeword[j] * HRA_56_56[i][j];
+        }
+        if (i == 0)
+        {
+            codeword[56] = (parityCtr % 2) ? 1 : 0;
+        }
+        else
+        {
+            parityCtr += codeword[56 + i - 1];
+            codeword[56 + i] = (parityCtr % 2) ? 1 : 0;
+        }
+    }
+
+    return codeword;
+}

@@ -1,6 +1,6 @@
 //=========================================================================
-// Name:            ComputeRfSpectrumStep.h
-// Purpose:         Describes a RF spectrum computation step step in the audio pipeline.
+// Name:            MinimalRealtimeHelper.h
+// Purpose:         Realtime helper for FreeDV integrations.
 //
 // Authors:         Mooneer Salem
 // License:
@@ -32,36 +32,39 @@
 //
 //=========================================================================
 
-#ifndef AUDIO_PIPELINE__COMPUTE_RF_SPECTRUM_STEP_H
-#define AUDIO_PIPELINE__COMPUTE_RF_SPECTRUM_STEP_H
+#ifndef MINIMAL_REALTIME_HELPER_H
+#define MINIMAL_REALTIME_HELPER_H
 
-#include <memory>
-#include <functional>
+#include <thread>
+#include <chrono>
+#include "../util/IRealtimeHelper.h"
 
-#include "modem_stats.h"
-#include "IPipelineStep.h"
-#include "../util/realtime_fp.h"
-#include "../util/GenericFIFO.h"
+using namespace std::chrono_literals;
 
-class ComputeRfSpectrumStep : public IPipelineStep
+class MinimalRealtimeHelper : public IRealtimeHelper
 {
 public:
-    // Note: only supports 8 kHz, so needs to be inserted into an AudioPipeline
-    // in order to downconvert properly.
-    ComputeRfSpectrumStep(
-        realtime_fp<struct MODEM_STATS*()> const& modemStatsFn,
-        realtime_fp<GenericFIFO<float>*()> const& getAvMagFn);
-    virtual ~ComputeRfSpectrumStep();
+    MinimalRealtimeHelper() = default;
+    virtual ~MinimalRealtimeHelper() = default;
     
-    virtual int getInputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual int getOutputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual short* execute(short* inputSamples, int numInputSamples, int* numOutputSamples) FREEDV_NONBLOCKING override;
+    // Configures current thread for real-time priority. This should be
+    // called from the thread that will be operating on received audio.
+    virtual void setHelperRealTime() override;
     
-private:
-    realtime_fp<struct MODEM_STATS*()> modemStatsFn_;
-    realtime_fp<GenericFIFO<float>*()> getAvMagFn_;
-    float* rxSpectrum_;
-    COMP* rxFdm_;
+    // Lets audio system know that we're beginning to do work with the
+    // received audio.
+    virtual void startRealTimeWork() override { /* empty */ }
+    
+    // Lets audio system know that we're done with the work on the received
+    // audio.
+    virtual void stopRealTimeWork(bool fastMode = false) override { (void)fastMode; std::this_thread::sleep_for(10ms); }
+    
+    // Reverts real-time priority for current thread.
+    virtual void clearHelperRealTime() override { /* empty */ }
+
+    // Returns true if real-time thread MUST sleep ASAP. Failure to do so
+    // may result in SIGKILL being sent to the process by the kernel.
+    virtual bool mustStopWork() FREEDV_NONBLOCKING override { return false; }
 };
 
-#endif // AUDIO_PIPELINE__COMPUTE_RF_SPECTRUM_STEP_H
+#endif // MINIMAL_REALTIME_HELPER_H

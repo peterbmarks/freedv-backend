@@ -1,9 +1,9 @@
-//=========================================================================
-// Name:            EqualizerStep.h
-// Purpose:         Describes an equalizer step in the audio pipeline.
+//==========================================================================
+// Name:            ldpc_encode.cpp
 //
+// Purpose:         Tests encode functionality of LDPC codes.
+// Created:         May 20, 2026
 // Authors:         Mooneer Salem
-// License:
 //
 // All rights reserved.
 //
@@ -30,35 +30,31 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//=========================================================================
+//==========================================================================
 
-#ifndef AUDIO_PIPELINE__EQUALIZER_STEP_H
-#define AUDIO_PIPELINE__EQUALIZER_STEP_H
+#include "ldpc_encode.h"
+#include <cstdio>
+#include <cstring>
 
-#include "IPipelineStep.h"
-#include <memory>
-#include "../util/audio_spin_mutex.h"
+int main() {
+    const char* in_str = "01000101011110000010001010001001000000000000000000000000";
+    std::array<uint8_t, 56> s{};
+    for (int i = 0; i < 56; ++i) s[i] = in_str[i] - '0';
 
-class EqualizerStep : public IPipelineStep
-{
-public:
-    EqualizerStep(int sampleRate, bool* enableFilter, void** bassFilter, void** midFilter, void** trebleFilter, void** volFilter, audio_spin_mutex& filterLock);
-    virtual ~EqualizerStep();
-    
-    virtual int getInputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual int getOutputSampleRate() const FREEDV_NONBLOCKING override;    
-    virtual short* execute(short* inputSamples, int numInputSamples, int* numOutputSamples) FREEDV_NONBLOCKING override;
-    
-private:
-    int sampleRate_;
-    bool* enableFilter_;
-    void** bassFilter_;
-    void** midFilter_;
-    void** trebleFilter_;
-    void** volFilter_;
-    audio_spin_mutex& filterLock_;
-    std::unique_ptr<short[]> outputSamples_;
-};
+    auto cw = ldpc_encode(s);
 
+    char out[113];
+    for (int i = 0; i < 112; ++i) out[i] = '0' + cw[i];
+    out[112] = '\0';
 
-#endif // AUDIO_PIPELINE__EQUALIZER_STEP_H
+    const char* expected =
+        "01000101011110000010001010001001000000000000000000000000"
+        "00011011001100000111011000110111101101001110011111111000";
+
+    printf("Got:      %s\n", out);
+    printf("Expected: %s\n", expected);
+
+    bool success = strcmp(out, expected) == 0;
+    printf("Match: %s\n", success ? "YES" : "NO");
+    return success ? 0 : -1;
+}

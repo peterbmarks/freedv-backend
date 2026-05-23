@@ -1,9 +1,8 @@
 //=========================================================================
-// Name:            RecordStep.h
-// Purpose:         Describes a record step in the audio pipeline.
+// Name:            MinimalRealTimeHelper.cpp
+// Purpose:         Realtime helper for Flex waveform.
 //
 // Authors:         Mooneer Salem
-// License:
 //
 // All rights reserved.
 //
@@ -32,42 +31,45 @@
 //
 //=========================================================================
 
-#ifndef AUDIO_PIPELINE__RECORD_STEP_H
-#define AUDIO_PIPELINE__RECORD_STEP_H
+#include "MinimalRealTimeHelper.h"
 
-#include "IPipelineStep.h"
+#if defined(USE_RTKIT)
+#include "../audio/rtkit.h"
+#endif // defined(USE_RTKIT)
 
-#include <functional>
-#include <sndfile.h>
-#include <thread>
-#include <atomic>
-#include "codec2_fifo.h"
-#include "../util/Semaphore.h"
-#include "../util/GenericFIFO.h"
+#include <string.h>
+#include "../util/logging/ulog.h"
 
-class RecordStep : public IPipelineStep
+void MinimalRealtimeHelper::setHelperRealTime()
 {
-public:
-    RecordStep(
-        int inputSampleRate, std::function<SNDFILE*()> getSndFileFn, std::function<void(int)> isFileCompleteFn);
-    virtual ~RecordStep();
-    
-    virtual int getInputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual int getOutputSampleRate() const FREEDV_NONBLOCKING override;
-    virtual short* execute(short* inputSamples, int numInputSamples, int* numOutputSamples) FREEDV_NONBLOCKING override;
-    virtual void reset() FREEDV_NONBLOCKING override;
-    
-private:
-    int inputSampleRate_;
-    std::function<int()> fileSampleRateFn_;
-    std::function<SNDFILE*()> getSndFileFn_;
-    std::function<void(int)> isFileCompleteFn_;
-    std::thread fileIoThread_;
-    GenericFIFO<short> inputFifo_;
-    std::atomic<bool> fileIoThreadEnding_;
-    Semaphore fileIoThreadSem_;
-    
-    void fileIoThreadEntry_();
-};
+#if defined(USE_RTKIT)
+    DBusError error;
+    DBusConnection* bus = nullptr;
+    int result = 0;
 
-#endif // AUDIO_PIPELINE__RECORD_STEP_H
+    dbus_error_init(&error);
+    if (!(bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error)))
+    {
+        log_warn("Could not connect to system bus: %s", error.message);
+    }
+    else
+    {
+        int minNiceLevel = 0;
+        constexpr int ERROR_BUFFER_SIZE = 1024;
+        char tmpBuf[ERROR_BUFFER_SIZE];
+        if ((result = rtkit_get_min_nice_level(bus, &minNiceLevel)) < 0)
+        {
+            log_warn("rtkit could not get minimum nice level: %s", strerror_r(-result, tmpBuf, ERROR_BUFFER_SIZE));
+        }
+        else if ((result = rtkit_make_high_priority(bus, 0, minNiceLevel)) < 0)
+        {
+            log_warn("rtkit could not make high priority: %s", strerror_r(-result, tmpBuf, ERROR_BUFFER_SIZE));
+        }
+    }
+
+    if (bus != nullptr)
+    {
+        dbus_connection_unref(bus);
+    }
+#endif // defined(USE_RTKIT)
+}

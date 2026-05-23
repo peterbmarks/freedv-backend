@@ -26,6 +26,7 @@ add_library(fdv_util STATIC
 
 target_compile_options(fdv_util PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})
 target_link_libraries(fdv_util yyjson fdv_os_wrapper)
+target_include_directories(fdv_util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(UNITTEST)
 macro(DefineUnitTest utName)

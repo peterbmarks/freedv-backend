@@ -21,8 +21,10 @@ add_library(fdv_audio_pipeline STATIC
 )
 
 target_compile_options(fdv_audio_pipeline PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})
-target_link_libraries(fdv_audio_pipeline PRIVATE ebur128 agc rnnoise fdv_os_wrapper r8brain rade opus)
+target_link_libraries(fdv_audio_pipeline PRIVATE ebur128 agc rnnoise fdv_os_wrapper r8brain)
+target_link_libraries(fdv_audio_pipeline INTERFACE rade opus)
 target_include_directories(fdv_audio_pipeline PRIVATE ${CODEC2_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
+target_include_directories(fdv_audio_pipeline PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(BOOTSTRAP_WXWIDGETS)
     add_dependencies(fdv_audio_pipeline wx::core wx::base wx::aui wx::html wx::net wx::adv wx::propgrid wx::xrc)

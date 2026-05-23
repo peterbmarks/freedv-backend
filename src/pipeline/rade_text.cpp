@@ -214,8 +214,8 @@ static void deinterleave_comp(RADE_COMP* out, RADE_COMP* in, int syms)
     for (int index = 0; index < syms; index++)
     {
         int newIndex = (INTERLEAVER_B * index) % syms;
-        out[newIndex].real = in[index].real;
-        out[newIndex].imag = in[index].imag;
+        out[index].real = in[newIndex].real;
+        out[index].imag = in[newIndex].imag;
     }
 }
 
@@ -223,9 +223,9 @@ static void interleave_bits(char* out, char* in, int syms)
 {
     for (int index = 0; index < syms; index++)
     {
-        int oldIndex = (INTERLEAVER_B * index) % syms;
-        out[2 * index] = in[2 * oldIndex];
-        out[2 * index + 1] = in[2 * oldIndex + 1];
+        int newIndex = (INTERLEAVER_B * index) % syms;
+        out[2 * newIndex] = in[2 * index];
+        out[2 * newIndex + 1] = in[2 * index + 1];
     }
 }
 

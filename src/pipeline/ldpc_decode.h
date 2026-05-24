@@ -61,11 +61,11 @@ struct LDPCDecodeResult {
 //   syms       - 56 received QPSK symbols
 //   amplitudes - per-symbol channel fading amplitude (use 1.0 for flat/unfaded channel)
 //   noise_var  - noise variance per I/Q component (sigma^2 of the AWGN)
-//   max_iter   - maximum belief-propagation iterations (default 20 which seems to work out to 0.2 BER)
+//   max_iter   - maximum belief-propagation iterations (default 30)
 LDPCDecodeResult ldpc_decode(const RADE_COMP* syms,
                               const float*    amplitudes,
                               float           noise_var,
-                              int             max_iter = 20);
+                              int             max_iter = 30);
 
 // Compute 112 channel LLRs from 56 received QPSK symbols using the
 // Simplified-MAX-Log-MAP (a.k.a. Max-Log-MAP) algorithm.

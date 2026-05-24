@@ -124,7 +124,7 @@ int main()
 
     // --- Test 2: frame error rate sweep over Eb/N0 ---
     printf("=== Test 2: frame error rate vs Eb/N0 ===\n");
-    printf("%6s  %6s  %6s  %6s\n", "Eb/N0", "FER", "iters", "conv");
+    printf("%6s  %6s  %6s  %6s  %6s\n", "Eb/N0", "FER", "iters", "conv", "conv_err");
 
     std::mt19937 rng(1234);
     const int FRAMES = 200;
@@ -136,6 +136,7 @@ int main()
         float sigma  = std::sqrt(sigma2);
 
         int   frame_errors = 0;
+        int   frame_errors_conv = 0;
         float total_iters  = 0.0f;
 
         int conv = 0;
@@ -155,14 +156,18 @@ int main()
             auto res = ldpc_decode(syms, amplitudes, sigma2);
             conv += res.converged;
             total_iters += res.iterations;
-            if (res.message != cw) frame_errors++;
+            if (res.message != cw)
+            {
+                frame_errors++;
+                if (res.converged) frame_errors_conv++;
+            }
         }
 
-        printf("%6.1f  %6.3f  %4.1f  %d\n",
+        printf("%6.1f  %6.3f    %4.1f   %5d  %8d\n",
                ebn0_db,
                (float)frame_errors / FRAMES,
                total_iters / FRAMES,
-               conv);
+               conv, frame_errors_conv);
     }
     return success ? 0 : -1;
 }

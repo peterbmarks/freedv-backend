@@ -488,6 +488,13 @@ int main()
         rade_text_t radeText = rade_text_create();
         assert(radeText != nullptr);
 
+        int nsyms = rade_n_eoo_bits(rade);
+        float* eooSyms = new float[nsyms];
+        assert(eooSyms);
+                
+        rade_text_generate_tx_string(radeText, "K6AQ", 4, eooSyms, nsyms);
+        rade_tx_set_eoo_bits(rade, eooSyms);
+
         // Run the full TX → RX pipeline
         bool pipelineOk = runPipeline(wavAudio16k, speechRate, modemRate,
                                       rade, encState, &fargan, radeText);

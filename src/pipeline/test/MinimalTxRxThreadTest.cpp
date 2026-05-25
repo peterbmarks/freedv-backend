@@ -51,6 +51,8 @@
 #include <thread>
 #include <memory>
 
+#include <unistd.h>
+
 extern "C"
 {
 #include "fargan.h"
@@ -331,6 +333,36 @@ int main()
     }
 
     log_info("All modem samples fed to RX");
+
+    // Wait for the RX thread to drain infifo2
+    auto drainDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(120);
+    while (rxCbData.infifo2->numUsed() > 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        // Feed silence to ensure we finish processing all encoded output
+        short temp[MODEM_CHUNK];
+        memset(temp, 0, sizeof(short) * MODEM_CHUNK);
+        rxCbData.infifo2->write(temp, MODEM_CHUNK);
+        
+        // Keep draining outfifo2 so the RX thread never stalls
+        int avail = rxCbData.outfifo2->numUsed();
+        if (avail > 0)
+        {
+            std::vector<short> discard(static_cast<size_t>(avail));
+            rxCbData.outfifo2->read(discard.data(), avail);
+        }
+        else
+        {
+            break;
+        }
+
+        if (std::chrono::steady_clock::now() > drainDeadline)
+        {
+            log_error("Timeout waiting for RX to drain infifo2");
+            break;
+        }
+    }
 
     // Give the RX pipeline a moment to finish its last frame
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

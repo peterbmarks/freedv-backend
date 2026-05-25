@@ -46,7 +46,7 @@ $ . ./rade-venv/bin/activate
 $ pip install torch matplotlib
 $ mkdir build
 $ cd build
-$ cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/activate -DUNITTEST=1 ..
+$ cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/python3 -DUNITTEST=1 ..
 $ make
 $ ctest -V
 ```

@@ -107,7 +107,9 @@ if(RADAE_PYTHON_EXECUTABLE)
     target_compile_definitions(MinimalTxRxThreadTest PRIVATE
         RADE_SRC_DIR="${CMAKE_BINARY_DIR}/rade_src"
         PYTHON_EXECUTABLE="${RADAE_PYTHON_EXECUTABLE}")
-    set_tests_properties(pipeline_MinimalTxRxThreadTest PROPERTIES TIMEOUT 600)
+    # Allow up to 1 hour: 6 rate combinations × ~10 min each (RADE NN inference
+    # on CPU can be significantly slower than real-time).
+    set_tests_properties(pipeline_MinimalTxRxThreadTest PROPERTIES TIMEOUT 3600)
 else()
     message(STATUS "MinimalTxRxThreadTest: no suitable Python3 found – test will be skipped")
 endif()

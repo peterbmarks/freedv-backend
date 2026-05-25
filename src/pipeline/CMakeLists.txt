@@ -32,7 +32,7 @@ macro(DefineUnitTest utName)
     add_executable(${utName} test/${utName}.cpp)
     target_link_libraries(${utName} PRIVATE fdv_audio_pipeline fdv_util r8brain)
     target_include_directories(${utName} PRIVATE ${CODEC2_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
-    
+
     add_test(NAME pipeline_${utName} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${utName})
 
     set_target_properties(
@@ -52,7 +52,64 @@ DefineUnitTest(ldpc_decode)
 DefineUnitTest(ldpc_encode)
 
 DefineUnitTest(RadeTextTest)
-target_link_libraries(RadeTextTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain) 
+target_link_libraries(RadeTextTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain)
 #endif(LINUX)
+
+# ---------------------------------------------------------------------------
+# MinimalTxRxThreadTest – end-to-end TX→RX pipeline quality check via loss.py
+#
+# Requires Python3 with numpy and torch installed.  Set RADAE_PYTHON_EXECUTABLE
+# on the cmake command line to override the auto-detected interpreter, e.g.:
+#   cmake -DRADAE_PYTHON_EXECUTABLE=/path/to/venv/bin/python3 ..
+# ---------------------------------------------------------------------------
+set(RADAE_PYTHON_EXECUTABLE "" CACHE STRING
+    "Python3 interpreter (with numpy/torch) for MinimalTxRxThreadTest. Auto-detected if empty.")
+
+if(NOT RADAE_PYTHON_EXECUTABLE)
+    # Try the system Python3 first
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_FOUND)
+        execute_process(
+            COMMAND "${Python3_EXECUTABLE}" -c "import numpy, torch"
+            RESULT_VARIABLE _PYTHON_DEPS_OK
+            OUTPUT_QUIET ERROR_QUIET)
+        if(_PYTHON_DEPS_OK EQUAL 0)
+            set(RADAE_PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
+        endif()
+    endif()
+endif()
+
+if(NOT RADAE_PYTHON_EXECUTABLE)
+    # Fall back to common virtual-environment locations
+    foreach(_PY_CANDIDATE
+        "$ENV{HOME}/radae/radae-venv/bin/python3"
+        "${CMAKE_BINARY_DIR}/radae-venv/bin/python3"
+        "/opt/homebrew/bin/python3"
+        "/usr/local/bin/python3")
+        if(EXISTS "${_PY_CANDIDATE}")
+            execute_process(
+                COMMAND "${_PY_CANDIDATE}" -c "import numpy, torch"
+                RESULT_VARIABLE _PY_OK
+                OUTPUT_QUIET ERROR_QUIET)
+            if(_PY_OK EQUAL 0)
+                set(RADAE_PYTHON_EXECUTABLE "${_PY_CANDIDATE}")
+                break()
+            endif()
+        endif()
+    endforeach()
+endif()
+
+if(RADAE_PYTHON_EXECUTABLE)
+    message(STATUS "MinimalTxRxThreadTest: using Python at ${RADAE_PYTHON_EXECUTABLE}")
+
+    DefineUnitTest(MinimalTxRxThreadTest)
+    target_link_libraries(MinimalTxRxThreadTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain)
+    target_compile_definitions(MinimalTxRxThreadTest PRIVATE
+        RADE_SRC_DIR="${CMAKE_BINARY_DIR}/rade_src"
+        PYTHON_EXECUTABLE="${RADAE_PYTHON_EXECUTABLE}")
+    set_tests_properties(pipeline_MinimalTxRxThreadTest PROPERTIES TIMEOUT 600)
+else()
+    message(STATUS "MinimalTxRxThreadTest: no suitable Python3 found – test will be skipped")
+endif()
 
 endif(UNITTEST)

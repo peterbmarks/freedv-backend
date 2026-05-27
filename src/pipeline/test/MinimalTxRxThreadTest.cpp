@@ -495,6 +495,12 @@ int main()
         rade_text_generate_tx_string(radeText, "K6AQ", 4, eooSyms, nsyms);
         rade_tx_set_eoo_bits(rade, eooSyms);
 
+        bool radeTextReceived = true;
+        rade_text_set_rx_callback(radeText, [](rade_text_t, const char *txt_ptr, int length, void *state) {
+            bool* pass = (bool*)state;
+            *pass = (strncmp(txt_ptr, "K6AQ", length) == 0);
+        }, &radeTextReceived);
+
         // Run the full TX → RX pipeline
         bool pipelineOk = runPipeline(wavAudio16k, speechRate, modemRate,
                                       rade, encState, &fargan, radeText);
@@ -506,12 +512,13 @@ int main()
         lpcnet_encoder_destroy(encState);
 
         // Evaluate quality with loss.py
-        bool passed = pipelineOk && runLossCheck(txFeatPath, rxFeatPath);
+        bool passed = pipelineOk && runLossCheck(txFeatPath, rxFeatPath) && radeTextReceived;
 
         // Remove temp feature files
         unlink(txFeatPath);
         unlink(rxFeatPath);
 
+        printf("callsign rx=%d\n", radeTextReceived);
         printf("speechRate=%-5d  modemRate=%-5d : %s\n\n",
                speechRate, modemRate, passed ? "PASS" : "FAIL");
         fflush(stdout);

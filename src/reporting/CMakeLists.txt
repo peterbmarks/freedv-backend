@@ -5,6 +5,8 @@ add_library(fdv_reporting STATIC
     FreeDVReporter.h
     CsvReporter.cpp
     CsvReporter.h
+    UdpReporter.cpp
+    UdpReporter.h
 )
 
 target_compile_options(fdv_reporting PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})

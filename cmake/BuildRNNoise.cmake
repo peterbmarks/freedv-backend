@@ -56,6 +56,9 @@ set_target_properties(rnnoise PROPERTIES
     IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/librnnoise${CMAKE_STATIC_LIBRARY_SUFFIX}"
 )
 
+add_library(rnnoise_inc INTERFACE)
+target_include_directories(rnnoise_inc INTERFACE ${SOURCE_DIR}/include)
+
 else(APPLE AND BUILD_OSX_UNIVERSAL)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86")
@@ -77,6 +80,9 @@ ExternalProject_Get_Property(build_rnnoise BINARY_DIR)
 ExternalProject_Get_Property(build_rnnoise SOURCE_DIR)
 add_library(rnnoise STATIC IMPORTED)
 add_dependencies(rnnoise build_rnnoise)
+
+add_library(rnnoise_inc INTERFACE)
+target_include_directories(rnnoise_inc INTERFACE ${SOURCE_DIR}/include)
 
 set_target_properties(rnnoise PROPERTIES
     IMPORTED_LOCATION "${BINARY_DIR}/.libs/librnnoise${CMAKE_STATIC_LIBRARY_SUFFIX}"

@@ -510,7 +510,7 @@ int main()
         rade_text_destroy(radeText);
         rade_close(rade);
         lpcnet_encoder_destroy(encState);
-        free(eooSyms);
+        delete[] eooSyms;
 
         // Evaluate quality with loss.py
         bool passed = pipelineOk && runLossCheck(txFeatPath, rxFeatPath) && radeTextReceived;

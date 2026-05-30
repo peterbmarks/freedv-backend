@@ -37,7 +37,7 @@ macro(DefineUnitTest utName)
 
     set_target_properties(
         ${utName}
-        PROPERTIES BUILD_RPATH "${CMAKE_BUILD_RPATH};${CMAKE_BINARY_DIR}/rade_build/src")
+        PROPERTIES BUILD_RPATH "${CMAKE_BUILD_RPATH};${rade_BINARY_DIR}/src")
 endmacro()
 
 DefineUnitTest(AudioPipelineTest)

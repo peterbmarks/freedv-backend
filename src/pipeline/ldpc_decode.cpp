@@ -84,7 +84,6 @@ LDPCDecodeResult ldpc_decode(const RADE_COMP* syms,
                               int             max_iter)
 {
     if (noise_var < 1e-10f) noise_var = 1e-10f;
-    const float scale = 2.0f / noise_var;
 
     // Compute channel LLRs. 
     float llr_ch[112];
@@ -224,7 +223,6 @@ void ldpc_linear_log_map(const RADE_COMP* syms,
 {
     constexpr int NUM_BITS_PER_SYMBOL = 2;
     constexpr int NUM_SYMBOLS = 56;
-    constexpr int NUM_POSSIBLE_SYMBOLS = 1 << NUM_BITS_PER_SYMBOL;
 
     float mean_amp = 0;
     for (int k = 0; k < NUM_SYMBOLS; k++) 

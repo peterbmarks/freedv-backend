@@ -234,9 +234,6 @@ static int rade_text_ldpc_decode(rade_text_impl_t *obj, char *dest, float meanAm
     assert(obj != NULL);
     assert(dest != NULL);
 
-    float llr[LDPC_TOTAL_SIZE_BITS];
-    int parityCheckCount = 0;
-
     // Calculate raw BER.
     int bitsRaw = 0;
     int errorsRaw = 0;

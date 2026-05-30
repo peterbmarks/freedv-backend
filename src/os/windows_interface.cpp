@@ -36,8 +36,9 @@
 
 #include "os_interface.h"
 
-#include <wx/wx.h>
-#include <wx/msw/registry.h>
+#include <windows.h>
+//#include <wx/wx.h>
+//#include <wx/msw/registry.h>
 
 void VerifyMicrophonePermissions(std::promise<bool>& micPromise)
 {

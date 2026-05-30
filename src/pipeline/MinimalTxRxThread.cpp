@@ -52,7 +52,7 @@ using namespace std::chrono_literals;
 
 extern std::atomic<bool> g_tx;
 extern bool endingTx;
-bool g_eoo_enqueued;
+std::atomic<bool> g_eoo_enqueued;
 
 static const float TxScaleFactor_ = 2.0;
 
@@ -325,18 +325,18 @@ void MinimalTxRxThread::txProcessing_(IRealtimeHelper* helper) noexcept
                 }
                 else
                 {
-                    if (!g_eoo_enqueued)
+                    if (!g_eoo_enqueued.load(std::memory_order_acquire))
                     {
                         // Add 40ms of additional silence as Flex will otherwise cut off EOO.
                         cbData_->outfifo1->write(inputSamplesZeros_.get(), 40 * outputSampleRate_ / 1000);
                     }
-                    g_eoo_enqueued = true;
+                    g_eoo_enqueued.store(true, std::memory_order_release);
                 }
                 break;
             }
             else
             {
-                g_eoo_enqueued = false;
+                g_eoo_enqueued.store(false, std::memory_order_release);
                 hasEooBeenSent_ = false;
             }
             

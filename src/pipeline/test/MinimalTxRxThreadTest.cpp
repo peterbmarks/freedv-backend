@@ -86,7 +86,7 @@ extern "C"
 // ---------------------------------------------------------------------------
 std::atomic<bool> g_tx(false);
 bool endingTx = false;
-extern bool g_eoo_enqueued; // defined in MinimalTxRxThread.cpp
+extern std::atomic<bool> g_eoo_enqueued; // defined in MinimalTxRxThread.cpp
 
 // ---------------------------------------------------------------------------
 // Globals required by RADETransmitStep and RADEReceiveStep (unit-test hooks)
@@ -320,7 +320,7 @@ static bool runPipeline(
     endingTx = true;
 
     // Wait until the TX thread signals EOO, draining modem output continuously
-    while (!g_eoo_enqueued)
+    while (!g_eoo_enqueued.load(std::memory_order_acquire))
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         drainTxOut();
@@ -510,6 +510,7 @@ int main()
         rade_text_destroy(radeText);
         rade_close(rade);
         lpcnet_encoder_destroy(encState);
+        free(eooSyms);
 
         // Evaluate quality with loss.py
         bool passed = pipelineOk && runLossCheck(txFeatPath, rxFeatPath) && radeTextReceived;

@@ -22,7 +22,7 @@ add_library(fdv_audio_pipeline STATIC
 
 add_dependencies(fdv_audio_pipeline rade opus)
 target_compile_options(fdv_audio_pipeline PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})
-target_link_libraries(fdv_audio_pipeline PRIVATE agc rnnoise fdv_os_wrapper r8brain)
+target_link_libraries(fdv_audio_pipeline PRIVATE ${LIBEBUR128} agc rnnoise fdv_os_wrapper r8brain)
 target_link_libraries(fdv_audio_pipeline INTERFACE rade opus rnnoise)
 target_include_directories(fdv_audio_pipeline PRIVATE ${CODEC2_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
 target_include_directories(fdv_audio_pipeline PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -41,18 +41,16 @@ macro(DefineUnitTest utName)
 endmacro()
 
 DefineUnitTest(AudioPipelineTest)
-target_link_libraries(AudioPipelineTest PRIVATE ${FREEDV_LINK_LIBS})
 DefineUnitTest(EitherOrTest)
 DefineUnitTest(LevelAdjustTest)
 DefineUnitTest(ResampleTest)
-target_link_libraries(ResampleTest PRIVATE ${FREEDV_LINK_LIBS})
 DefineUnitTest(TapTest)
 
 DefineUnitTest(ldpc_decode)
 DefineUnitTest(ldpc_encode)
 
 DefineUnitTest(RadeTextTest)
-target_link_libraries(RadeTextTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain)
+target_link_libraries(RadeTextTest PRIVATE rade opus r8brain)
 #endif(LINUX)
 
 # ---------------------------------------------------------------------------
@@ -103,7 +101,7 @@ if(RADAE_PYTHON_EXECUTABLE)
     message(STATUS "MinimalTxRxThreadTest: using Python at ${RADAE_PYTHON_EXECUTABLE}")
 
     DefineUnitTest(MinimalTxRxThreadTest)
-    target_link_libraries(MinimalTxRxThreadTest PRIVATE ${FREEDV_LINK_LIBS} rade opus r8brain)
+    target_link_libraries(MinimalTxRxThreadTest PRIVATE rade opus r8brain)
     target_compile_definitions(MinimalTxRxThreadTest PRIVATE
         RADE_SRC_DIR="${CMAKE_BINARY_DIR}/rade_src"
         PYTHON_EXECUTABLE="${RADAE_PYTHON_EXECUTABLE}")

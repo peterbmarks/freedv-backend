@@ -114,7 +114,7 @@ public:
 
     void stop()
     {
-        m_run = false;
+        m_run.store(false, std::memory_order_release);
         if (thread_.joinable())
         {
             thread_.join();
@@ -139,7 +139,7 @@ private:
     FARGANState* farganState_;
     paCallBackData* cbData_;
     bool  m_tx;
-    bool  m_run;
+    std::atomic<bool>  m_run;
     std::unique_ptr<AudioPipeline> pipeline_;
     int inputSampleRate_;
     int outputSampleRate_;

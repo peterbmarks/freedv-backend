@@ -139,10 +139,8 @@ void* MinimalTxRxThread::Entry()
     startSem_.wait();
     clearFifos_();
 
-    while (m_run)
+    while (m_run.load(std::memory_order_acquire))
     {
-        if (!m_run) break;
-        
         //log_info("thread woken up: m_tx=%d", (int)m_tx);
         helper->startRealTimeWork();
 

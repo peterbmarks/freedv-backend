@@ -30,6 +30,7 @@ set_target_properties(rade PROPERTIES
 )
 list(APPEND FREEDV_PACKAGE_SEARCH_PATHS ${BINARY_DIR}/src)
 set(rade_BINARY_DIR ${BINARY_DIR})
+set(rade_SOURCE_DIR ${SOURCE_DIR})
 
 add_library(opus STATIC IMPORTED)
 add_dependencies(opus build_rade)

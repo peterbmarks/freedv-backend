@@ -103,7 +103,7 @@ if(RADAE_PYTHON_EXECUTABLE)
     DefineUnitTest(MinimalTxRxThreadTest)
     target_link_libraries(MinimalTxRxThreadTest PRIVATE rade opus r8brain)
     target_compile_definitions(MinimalTxRxThreadTest PRIVATE
-        RADE_SRC_DIR="${CMAKE_BINARY_DIR}/rade_src"
+        RADE_SRC_DIR="${rade_SOURCE_DIR}"
         PYTHON_EXECUTABLE="${RADAE_PYTHON_EXECUTABLE}")
     # Allow up to 1 hour: 6 rate combinations × ~10 min each (RADE NN inference
     # on CPU can be significantly slower than real-time).

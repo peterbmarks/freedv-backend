@@ -111,7 +111,6 @@ short* ResampleStep::execute(short* inputSamples, int numInputSamples, int* numO
         FREEDV_END_VERIFIED_SAFE
 
         //ConvertToFloatSampleType_<float, short>(inputPtr, tempInput_, inputSize);
-        double* tempOutputPtr = nullptr;
 
         src_data.data_in = tempInput_;
         src_data.data_out = tempOutput_;

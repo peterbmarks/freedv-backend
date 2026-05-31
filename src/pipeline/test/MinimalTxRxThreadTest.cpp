@@ -310,7 +310,7 @@ static bool runPipeline(
             }
             else
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
             drainTxOut();
         }
@@ -366,7 +366,7 @@ static bool runPipeline(
         }
         else
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         drainRxOut();
     }

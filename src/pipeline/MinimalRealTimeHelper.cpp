@@ -84,7 +84,7 @@ void MinimalRealtimeHelper::stopRealTimeWork(bool)
 {
     auto nominalSleepTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(20));
     auto sleepTimeNs = nominalSleepTimeNs - std::chrono::nanoseconds(extraTimeNs_);
-    std::this_thread::sleep_for(sleepTimeNs);
+    std::this_thread::sleep_until(startTime_ + sleepTimeNs);
 
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime_).count() - sleepTimeNs.count();

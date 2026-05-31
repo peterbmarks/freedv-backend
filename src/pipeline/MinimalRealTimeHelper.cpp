@@ -73,3 +73,19 @@ void MinimalRealtimeHelper::setHelperRealTime()
     }
 #endif // defined(USE_RTKIT)
 }
+
+void MinimalRealtimeHelper::startRealTimeWork()
+{
+    startTime_ = std::chrono::steady_clock::now();
+}
+
+void MinimalRealtimeHelper::stopRealTimeWork(bool)
+{
+    auto nominalSleepTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(20));
+    auto sleepTimeNs = nominalSleepTimeNs - std::chrono::nanoseconds(extraTimeNs_);
+    std::this_thread::sleep_for(sleepTimeNs);
+
+    auto endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime_).count() - sleepTimeNs.count();
+    extraTimeNs_ = std::max((long)0, (long)duration); // cap extra time to >= 0.
+}

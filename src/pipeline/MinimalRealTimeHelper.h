@@ -53,11 +53,11 @@ public:
     
     // Lets audio system know that we're beginning to do work with the
     // received audio.
-    virtual void startRealTimeWork() override { /* empty */ }
+    virtual void startRealTimeWork() override;
     
     // Lets audio system know that we're done with the work on the received
     // audio.
-    virtual void stopRealTimeWork(bool fastMode = false) override { (void)fastMode; std::this_thread::sleep_for(10ms); }
+    virtual void stopRealTimeWork(bool fastMode = false) override;
     
     // Reverts real-time priority for current thread.
     virtual void clearHelperRealTime() override { /* empty */ }
@@ -65,6 +65,10 @@ public:
     // Returns true if real-time thread MUST sleep ASAP. Failure to do so
     // may result in SIGKILL being sent to the process by the kernel.
     virtual bool mustStopWork() FREEDV_NONBLOCKING override { return false; }
+
+private:
+    int extraTimeNs_;
+    std::chrono::time_point<std::chrono::steady_clock> startTime_;
 };
 
 #endif // MINIMAL_REALTIME_HELPER_H

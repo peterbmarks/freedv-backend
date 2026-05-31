@@ -51,7 +51,7 @@ using namespace std::chrono_literals;
 #include "../../pipeline/pipeline_defines.h"
 
 extern std::atomic<bool> g_tx;
-extern bool endingTx;
+extern std::atomic<bool> endingTx;
 std::atomic<bool> g_eoo_enqueued;
 
 static const float TxScaleFactor_ = 2.0;
@@ -304,7 +304,7 @@ void MinimalTxRxThread::txProcessing_(IRealtimeHelper* helper) noexcept
             {
                 inputPtr = inputSamplesZeros_.get();
             }
-            if (nread != 0 && endingTx)
+            if (nread != 0 && endingTx.load(std::memory_order_acquire))
             {
                 if (!hasEooBeenSent_)
                 {

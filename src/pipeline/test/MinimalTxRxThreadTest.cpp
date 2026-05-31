@@ -85,7 +85,7 @@ extern "C"
 // Globals required by MinimalTxRxThread
 // ---------------------------------------------------------------------------
 std::atomic<bool> g_tx(false);
-bool endingTx = false;
+std::atomic<bool> endingTx(false);
 extern std::atomic<bool> g_eoo_enqueued; // defined in MinimalTxRxThread.cpp
 
 // ---------------------------------------------------------------------------
@@ -204,7 +204,7 @@ static bool runPipeline(
 {
     // Reset per-run global state
     g_tx.store(true, std::memory_order_release);
-    endingTx       = false;
+    endingTx.store(false, std::memory_order_release);
     g_eoo_enqueued = false;
 
     // ----- FIFO sizing -----
@@ -317,7 +317,7 @@ static bool runPipeline(
     }
 
     // Signal end of TX so the thread sends the RADE EOO burst
-    endingTx = true;
+    endingTx.store(true, std::memory_order_release);
 
     // Wait until the TX thread signals EOO, draining modem output continuously
     while (!g_eoo_enqueued.load(std::memory_order_acquire))

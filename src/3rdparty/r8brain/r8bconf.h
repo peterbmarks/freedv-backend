@@ -129,7 +129,7 @@
 	 * use.
 	 */
 
-	#define R8B_FASTTIMING 1
+	#define R8B_FASTTIMING 0
 #endif // !defined( R8B_FASTTIMING )
 
 #if !defined( R8B_EXTFFT )

@@ -38,6 +38,7 @@
 #endif // defined(USE_RTKIT)
 
 #include <string.h>
+#include <algorithm>
 #include "../util/logging/ulog.h"
 
 void MinimalRealtimeHelper::setHelperRealTime()

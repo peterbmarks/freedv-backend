@@ -325,6 +325,7 @@ static bool runPipeline(
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         drainTxOut();
     }
+    g_tx.store(false, std::memory_order_release);
 
     // Final drain window
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -334,7 +335,6 @@ static bool runPipeline(
              modemBuffer.size(), speechRate, modemRate);
 
     // Stop TX thread; this flushes and closes the TX feature file
-    g_tx.store(false, std::memory_order_release);
     txThread->stop();
 
     // ----- RX phase -----

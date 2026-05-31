@@ -78,6 +78,9 @@ static float phi(float x)
     return std::log((expx + 1.0f) / (expx - 1.0f));
 }
 
+static const int E = (int)graph.edges.size();
+static std::vector<float> m_vc(E), m_cv(E, 0.0f);
+
 LDPCDecodeResult ldpc_decode(const RADE_COMP* syms,
                               const float*    amplitudes,
                               float           noise_var,
@@ -89,13 +92,13 @@ LDPCDecodeResult ldpc_decode(const RADE_COMP* syms,
     float llr_ch[112];
     ldpc_linear_log_map(syms, amplitudes, noise_var, llr_ch);
 
-    const int E = (int)graph.edges.size();
-
     // m_vc[e]: variable-to-check message on edge e
     // m_cv[e]: check-to-variable message on edge e
-    std::vector<float> m_vc(E), m_cv(E, 0.0f);
     for (int e = 0; e < E; e++)
+    {
         m_vc[e] = llr_ch[graph.edges[e].var];
+        m_cv[e] = 0.0f;
+    }
 
     LDPCDecodeResult result{};
     result.converged  = false;

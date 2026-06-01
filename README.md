@@ -29,10 +29,10 @@ $ cmake ..
 $ make
 ```
 
-To enable unit tests, you can pass `-DUNITTEST=1` to `cmake`:
+To enable unit tests, you can pass `-DBUILD_BACKEND_UNITTESTS=1` to `cmake`:
 
 ```
-$ cmake -DUNITTEST=1 ..
+$ cmake -DBUILD_BACKEND_UNITTESTS=1 ..
 $ make
 $ ctest -V
 ```
@@ -46,7 +46,7 @@ $ . ./rade-venv/bin/activate
 $ pip install torch matplotlib
 $ mkdir build
 $ cd build
-$ cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/python3 -DUNITTEST=1 ..
+$ cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/python3 -DBUILD_BACKEND_UNITTESTS=1 ..
 $ make
 $ ctest -V
 ```

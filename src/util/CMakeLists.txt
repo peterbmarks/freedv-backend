@@ -28,7 +28,7 @@ target_compile_options(fdv_util PRIVATE ${WARNINGS_AS_ERRORS_FLAGS})
 target_link_libraries(fdv_util yyjson fdv_os_wrapper)
 target_include_directories(fdv_util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(UNITTEST)
+if(BUILD_BACKEND_UNITTESTS)
 macro(DefineUnitTest utName)
     add_executable(${utName} test/${utName}.cpp)
     target_link_libraries(${utName} PRIVATE fdv_util)
@@ -37,5 +37,5 @@ macro(DefineUnitTest utName)
 endmacro()
 
 DefineUnitTest(ThreadedTimerTest)
-endif(UNITTEST)
+endif(BUILD_BACKEND_UNITTESTS)
 

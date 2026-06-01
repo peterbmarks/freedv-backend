@@ -68,10 +68,10 @@ else(NOT USE_STATIC_LIBEBUR128)
 endif(NOT USE_STATIC_EBUR128)
 
 # Enable CTest tests for freedv-gui
-option(UNITTEST "Build unit test binaries." OFF)
-if(UNITTEST)
+option(BUILD_BACKEND_UNITTESTS "Build unit test binaries." OFF)
+if(BUILD_BACKEND_UNITTESTS)
 message(STATUS "Enabling unit tests.")
 enable_testing()
-endif(UNITTEST)
+endif(BUILD_BACKEND_UNITTESTS)
 
 add_subdirectory(src)

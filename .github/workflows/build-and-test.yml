@@ -38,7 +38,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DRADAE_PYTHON_EXECUTABLE=${{ github.workspace }}/rade-venv/bin/python3 -DUNITTEST=1 ..
+        cmake -DRADAE_PYTHON_EXECUTABLE=${{ github.workspace }}/rade-venv/bin/python3 -DBUILD_BACKEND_UNITTESTS=1 ..
 
     - name: Build backend and tests
       run: |

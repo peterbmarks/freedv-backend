@@ -210,8 +210,8 @@ static bool runPipeline(
     // ----- FIFO sizing -----
     // Give each FIFO enough headroom for several seconds of audio at the
     // appropriate sample rate so the pipeline never blocks.
-    const int SPEECH_FIFO = speechRate * 4;  // 4 s of speech
-    const int MODEM_FIFO  = modemRate  * 4;  // 4 s of modem
+    const int SPEECH_FIFO = speechRate * 1;  // 1 s of speech
+    const int MODEM_FIFO  = modemRate  * 1;  // 1 s of modem
 
     paCallBackData cbData;
 

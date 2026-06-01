@@ -80,9 +80,9 @@ void MinimalRealtimeHelper::startRealTimeWork()
     startTime_ = std::chrono::steady_clock::now();
 }
 
-void MinimalRealtimeHelper::stopRealTimeWork(bool)
+void MinimalRealtimeHelper::stopRealTimeWork(bool fastMode)
 {
-    auto nominalSleepTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(20));
+    auto nominalSleepTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(fastMode ? 10 : 20));
     auto sleepTimeNs = nominalSleepTimeNs - std::chrono::nanoseconds(extraTimeNs_);
     std::this_thread::sleep_until(startTime_ + sleepTimeNs);
 

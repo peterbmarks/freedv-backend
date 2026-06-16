@@ -8,7 +8,7 @@ This repository contains a series of static libraries used by other FreeDV repos
 
 This is intended to be used as a Git submodule, i.e.
 
-```
+```sh
 project/src$ git submodule add https://github.com/tmiw/freedv-backend backend
 ...
 
@@ -22,33 +22,41 @@ with required libraries linked in as needed.
 
 This project can be compiled standalone by running `cmake`:
 
-```
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+```sh
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 To enable unit tests, you can pass `-DBUILD_BACKEND_UNITTESTS=1` to `cmake`:
 
-```
-$ cmake -DBUILD_BACKEND_UNITTESTS=1 ..
-$ make
-$ ctest -V
+```sh
+cmake -DBUILD_BACKEND_UNITTESTS=1 ..
+make
+ctest -V
 ```
 
 It's highly recommended to also set up a Python venv so that the "loss" tests can be executed
 (see [RADE README](https://github.com/drowe67/radae/blob/main/README.md#verifying-rade-integration)):
 
+```sh
+python3 -m venv rade-venv
+. ./rade-venv/bin/activate
+pip install torch matplotlib
+mkdir build
+cd build
+cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/python3 -DBUILD_BACKEND_UNITTESTS=1 ..
+make
+ctest -V
 ```
-$ python3 -m venv rade-venv
-$ . ./rade-venv/bin/activate
-$ pip install torch matplotlib
-$ mkdir build
-$ cd build
-$ cmake -DRADAE_PYTHON_EXECUTABLE=$(pwd)/../rade-venv/bin/python3 -DBUILD_BACKEND_UNITTESTS=1 ..
-$ make
-$ ctest -V
+
+Tests take some time. A good result ends like this:
+
+```
+100% tests passed, 0 tests failed out of 10
+
+Total Test time (real) = 198.79 sec
 ```
 
 ## Getting Support

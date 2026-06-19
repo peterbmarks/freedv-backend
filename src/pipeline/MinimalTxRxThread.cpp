@@ -58,8 +58,7 @@ static const float TxScaleFactor_ = 2.0;
 
 int MinimalTxRxThread::getTxNNomModemSamples() const
 {
-    const int NUM_SAMPLES_SILENCE = 60 * RADE_MODEM_SAMPLE_RATE / 1000;
-    return std::max(rade_n_tx_out(rade_), rade_n_tx_eoo_out(rade_) + NUM_SAMPLES_SILENCE);
+    return std::max(rade_n_tx_out(rade_), txStep_->eooLengthInSamples());
 }
 
 int MinimalTxRxThread::getRxNumSpeechSamples() const
@@ -323,11 +322,6 @@ void MinimalTxRxThread::txProcessing_(IRealtimeHelper* helper) noexcept
                 }
                 else
                 {
-                    if (!g_eoo_enqueued.load(std::memory_order_acquire))
-                    {
-                        // Add 40ms of additional silence as Flex will otherwise cut off EOO.
-                        cbData_->outfifo1->write(inputSamplesZeros_.get(), 40 * outputSampleRate_ / 1000);
-                    }
                     g_eoo_enqueued.store(true, std::memory_order_release);
                 }
                 break;

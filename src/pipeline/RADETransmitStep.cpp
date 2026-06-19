@@ -62,10 +62,23 @@ using namespace std::chrono_literals;
 
 const int RADE_SCALING_FACTOR = 16383;
 
+// Additional silence added at the end of the EOO block to ensure that it actually gets
+// transmitted out over the air. This was determined experimentally using the FlexRadio
+// waveform and OTA testing to be 200ms. Other radios (especially ones directly connected
+// to a PC) may not need as long.
+const int NUM_SAMPLES_SILENCE = 200 * RADE_MODEM_SAMPLE_RATE / 1000;
+
 #if !defined(DISABLE_UNIT_TEST)
 #include <string>
 extern std::string utTxFeatureFile;
 #endif // !defined(DISABLE_UNIT_TEST)
+
+int RADETransmitStep::eooLengthInSamples() const FREEDV_NONBLOCKING
+{
+    FREEDV_BEGIN_VERIFIED_SAFE
+        return rade_n_tx_eoo_out(dv_) + NUM_SAMPLES_SILENCE;
+    FREEDV_END_VERIFIED_SAFE
+}
 
 RADETransmitStep::RADETransmitStep(struct rade* dv, LPCNetEncState* encState)
     : dv_(dv)
@@ -101,7 +114,6 @@ RADETransmitStep::RADETransmitStep(struct rade* dv, LPCNetEncState* encState)
     radeOutShort_ = new short[numOutputSamples];
     assert(radeOutShort_ != nullptr);
 
-    const int NUM_SAMPLES_SILENCE = 60 * RADE_MODEM_SAMPLE_RATE / 1000;
     int numEOOSamples = rade_n_tx_eoo_out(dv_);
 
     eooOut_ = new RADE_COMP[numEOOSamples];
@@ -225,7 +237,6 @@ short* RADETransmitStep::execute(short* inputSamples, int numInputSamples, int* 
 void RADETransmitStep::restartVocoder() FREEDV_NONBLOCKING
 {
     // Queues up EOO for return on the next call to this pipeline step.
-    const int NUM_SAMPLES_SILENCE = 60 * getOutputSampleRate() / 1000;
     FREEDV_BEGIN_VERIFIED_SAFE
     int numEOOSamples = rade_n_tx_eoo_out(dv_);
     FREEDV_END_VERIFIED_SAFE
